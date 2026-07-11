@@ -61,7 +61,13 @@ npm run dev
 2. Άνοιξε `http://<IP-του-PC>:5174` (π.χ. `http://192.168.1.42:5174`). Το IP το βλέπεις στο Windows: `ipconfig` → IPv4 Address του Wi‑Fi adapter.
 3. (Προαιρετικά) Safari → **Κοινοποίηση** → **Προσθήκη στην αρχική οθόνη** — συμπεριφορά σαν «εφαρμογή».
 
-**Εκτός σπιτιού:** το `npm run dev` τρέχει μόνο τοπικά· για μόνιμο URL από internet χρειάζεται hosting (`npm run build` + Netlify/Vercel κ.λπ.) ή tunnel (ngrok). Το **MQTT** (HiveMQ `wss://…`) δουλεύει από το κινητό όπου κι αν είσαι, αρκεί η σελίδα να φορτώνει και τα credentials να είναι σωστά.
+**Εκτός σπιτιού:** το `npm run dev` τρέχει μόνο τοπικά· για μόνιμο URL από internet χρησιμοποίησε το **GitHub Pages** (μετά το merge στο `main`):
+
+**https://romeos69788.github.io/romeos-remote/**
+
+(Απαιτεί ενεργοποίηση Pages στο repo: Settings → Pages → Source: **GitHub Actions**.)
+
+Εναλλακτικά: `npm run build` + Netlify/Vercel ή tunnel (ngrok). Το **MQTT** (HiveMQ `wss://…`) δουλεύει από το κινητό όπου κι αν είσαι, αρκεί η σελίδα να φορτώνει και τα credentials να είναι σωστά.
 
 ## Ασφάλεια
 
