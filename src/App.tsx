@@ -249,6 +249,9 @@ export function App() {
   const staleSeconds =
     lastStateMs === null ? null : Math.max(0, Math.floor((Date.now() - lastStateMs) / 1000));
   const telemetryStale = staleSeconds !== null && staleSeconds > 20;
+  const needsSetup =
+    wsUrl.includes("YOUR_CLUSTER") || !user.trim() || !pass.trim();
+  const showTelemetry = status === "on" || state !== null;
 
   const relayPills = useMemo(() => {
     if (!state) {
@@ -280,6 +283,21 @@ export function App() {
         Web εφαρμογή για iPhone (Safari). Χρειάζεται MQTT broker (π.χ. HiveMQ
         Cloud) και firmware μητρικής με τα ίδια στοιχεία.
       </p>
+
+      {needsSetup ? (
+        <div className="banner banner-warn" role="status">
+          <strong>Ρύθμιση απαιτείται.</strong> Συμπλήρωσε WebSocket URL, χρήστη
+          και κωδικό MQTT (ίδα με τη μητρική), μετά πάτα «Σύνδεση».
+        </div>
+      ) : null}
+
+      {status === "on" && !state ? (
+        <div className="banner banner-info" role="status">
+          Συνδεδεμένο στο MQTT — περιμένουμε τηλεμετρία από{" "}
+          <code>{topics.state}</code>. Βεβαιώσου ότι η μητρική είναι online και
+          στέλνει state.
+        </div>
+      ) : null}
 
       <div className="card stack">
         <h2>Σύνδεση</h2>
@@ -347,46 +365,69 @@ export function App() {
         {err ? <div className="err">{err}</div> : null}
       </div>
 
-      {state ? (
+      {showTelemetry ? (
         <div className="card stack">
           <h2>Κατάσταση (από μητρική)</h2>
+          {!state ? (
+            <div className="empty-state" role="status">
+              Δεν έχουν φτάσει ακόμα δεδομένα. Αν περνάει &gt;20s, έλεγξε Device
+              ID και ότι η μητρική δημοσιεύει στο{" "}
+              <code>{topics.state}</code>.
+            </div>
+          ) : null}
           <div className="grid2">
             <div>
               <div className="muted">Χώρος</div>
-              <div className="temp-big">{fmtC(state.room_c_x10)}</div>
+              <div className={`temp-big ${!state ? "temp-placeholder" : ""}`}>
+                {fmtC(state?.room_c_x10)}
+              </div>
             </div>
             <div>
               <div className="muted">Setpoint (συσκευή)</div>
-              <div className="temp-big">{fmtC(state.setpoint_c_x10)}</div>
+              <div className={`temp-big ${!state ? "temp-placeholder" : ""}`}>
+                {fmtC(state?.setpoint_c_x10)}
+              </div>
             </div>
             <div>
               <div className="muted">Έξω</div>
-              <div>{fmtC(state.outdoor_c_x10)}</div>
+              <div>{fmtC(state?.outdoor_c_x10)}</div>
             </div>
             <div>
               <div className="muted">Boiler νερό</div>
-              <div>{fmtC(state.boiler_c_x10)}</div>
+              <div>{fmtC(state?.boiler_c_x10)}</div>
             </div>
             <div>
               <div className="muted">Solar</div>
-              <div>{fmtC(state.solar_c_x10)}</div>
+              <div>{fmtC(state?.solar_c_x10)}</div>
             </div>
             <div>
               <div className="muted">Supply / Return</div>
               <div>
-                {fmtC(state.supply_c_x10)} / {fmtC(state.return_c_x10)}
+                {fmtC(state?.supply_c_x10)} / {fmtC(state?.return_c_x10)}
               </div>
             </div>
           </div>
-          <div className="muted">
-            HP {state.heat_pump ? "ON" : "off"} · P1 {state.pump1 ? "ON" : "off"}{" "}
-            · P2 {state.pump2 ? "ON" : "off"} · Heater{" "}
-            {state.heater ? "ON" : "off"} · Flow {state.flow_sig_high ? "H" : "L"}{" "}
-            · Defrost {state.defrost_active ? "ON" : "off"}
-          </div>
-          {relayPills}
+          {state ? (
+            <>
+              <div className="muted">
+                HP {state.heat_pump ? "ON" : "off"} · P1{" "}
+                {state.pump1 ? "ON" : "off"} · P2 {state.pump2 ? "ON" : "off"}{" "}
+                · Heater {state.heater ? "ON" : "off"} · Flow{" "}
+                {state.flow_sig_high ? "H" : "L"} · Defrost{" "}
+                {state.defrost_active ? "ON" : "off"}
+              </div>
+              {relayPills}
+            </>
+          ) : null}
         </div>
-      ) : null}
+      ) : (
+        <div className="card stack">
+          <h2>Κατάσταση (από μητρική)</h2>
+          <div className="empty-state">
+            Πάτα «Σύνδεση» για να δεις θερμοκρασίες και ρελέ από τη μητρική.
+          </div>
+        </div>
+      )}
 
       <div className="card stack">
         <h2>Αλλαγή setpoint (εκτός σπιτιού)</h2>
